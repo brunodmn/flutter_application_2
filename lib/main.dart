@@ -1,6 +1,20 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+import 'firebase_options.dart';
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  debugPrint("Handling a background message: ${message.messageId}");
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseMessaging.onBackgroundMessage(
+      (message) => _firebaseMessagingBackgroundHandler(message));
   runApp(const MyApp());
 }
 
@@ -49,6 +63,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  @override
+  void initState() {
+    FirebaseMessaging.instance
+        .getToken()
+        .then((value) => debugPrint('Messaging Token is $value'));
+    super.initState();
+  }
 
   void _incrementCounter() {
     setState(() {
